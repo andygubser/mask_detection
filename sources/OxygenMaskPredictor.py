@@ -1,5 +1,3 @@
-#%tensorflow_version 1.x
-from mrcnn import utils
 import os
 import numpy as np
 from matplotlib import pyplot
@@ -7,6 +5,7 @@ from matplotlib.patches import Rectangle
 import skimage.io
 from mrcnn.config import Config
 from mrcnn.model import MaskRCNN
+import mrcnn.model as modellib
 
 class PredictionConfig(Config):
     NAME = "oxygenmask_cfg"
@@ -24,43 +23,46 @@ def imgToArray(absoluteFilePath):
         image = image[..., :3]
     return image
 
-def plot_prediction(imageSourceDir, model, cfg):
+def plot_prediction(absolutePathImage, model, cfg):
+    print("predict masks for image: {0}".format(absolutePathImage))
+
     classNameById = {1: "with_mask", 2: "without_mask", 3: "mask_weared_incorrect"}
+    image = imgToArray(absolutePathImage)
+    scaled_image = modellib.mold_image(image, cfg)
+    sample = np.expand_dims(scaled_image, 0)
+    y_predict = model.detect(sample, verbose=0)[0]
 
-    imageFiles = [os.path.join(imageSourceDir, fileName) for fileName in os.listdir(imageSourceDir) if filename.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
+    pyplot.subplot(len(imageFiles), 2, i * 2 + 2)
+    pyplot.imshow(image)
+    pyplot.title('Oxygen Mask Prediction')
+    ax = pyplot.gca()
+    for i in range(len(y_predict['rois'])):
+        y1, x1, y2, x2 = y_predict['rois'][i]
+        width, height = x2 - x1, y2 - y1
+        predClassId = int(y_predict['class_ids'][i])
+        className = classNameById[predClassId]
+        print("className: {0}".format(className))
+        rect = Rectangle((x1, y1), width, height, fill=False, color='red')
+        ax.add_patch(rect) # draw box
+    pyplot.show()
 
-    print(imageFiles)
-    return None
-    for i in range(len(imageFiles)):
-        imagePath = imageFiles[i]
-        image = imgToArray(imagePath)
-        mask, _ = dataset.load_mask(i)
-        scaled_image = modellib.mold_image(image, cfg)
-        sample = np.expand_dims(scaled_image, 0)
-        y = model.detect(sample, verbose=0)[0]
+def get_lastImage(imageBasePath):
 
-        pyplot.subplot(len(images), 2, i * 2 + 2)
-        pyplot.imshow(image)
-        pyplot.title('Oxygen Mask Prediction')
-        ax = pyplot.gca()
-        for i in range(len(y['rois'])):
-            y1, x1, y2, x2 = y['rois'][i]
-            width, height = x2 - x1, y2 - y1
-            predClassId = int(yhat['class_ids'][i])
-            className = classNameById[predClassId]
-            print("className: {0}".format(className))
-            rect = Rectangle((x1, y1), width, height, fill=False, color='red')
-            ax.add_patch(rect) # draw box
-            pyplot.show()
+    return imageBasePath
 
-def load_model():
-    cfg = PredictionConfig()
-    model = MaskRCNN(mode='inference', model_dir='./', config=cfg)
-    model_path = 'mask_rcnn_oxygenmask_cfg_0005.h5'
-    model.load_weights(model_path, by_name=True)
-    return model
+cfg = PredictionConfig()
+sourcePath = os.path.dirname(os.path.abspath(__file__))
 
-model = load_model()
-imageSourceDir = 'C:\Projects\Python\DeepLearningInVision\mask_detection\sources'
+model = MaskRCNN(mode='inference', model_dir=sourcePath, config=cfg)
+model.load_weights('mask_rcnn_oxygenmask_cfg_0005.h5', by_name=True)
 
-plot_prediction(imageSourceDir, model, cfg)
+imageBasePath = sourcePath
+imageFiles = [os.path.join(imageBasePath, fileName) for fileName in os.listdir(imageBasePath) if fileName.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
+
+print("[x] to close")
+while True:
+    absoluteFilePath = get_lastImage()
+    plot_prediction(absoluteFilePath, model, cfg)
+
+
+
