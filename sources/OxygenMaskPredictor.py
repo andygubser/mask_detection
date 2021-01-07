@@ -49,7 +49,8 @@ def init_model_config():
     config = PredictionConfig()
     sourcePath = os.path.dirname(os.path.abspath(__file__))
     model = MaskRCNN(mode='inference', model_dir=sourcePath, config=config)
-    model.load_weights('./mask_rcnn_oxygenmask_cfg_0005.h5', by_name=True)
+    modelAbsolutePath = os.path.join(sourcePath, "mask_rcnn_oxygenmask_cfg_0005.h5")
+    model.load_weights(modelAbsolutePath, by_name=True)
     return model, config
 
 def get_lastImage(imageBasePath):
@@ -68,7 +69,7 @@ def get_lastImage(imageBasePath):
 model,config = init_model_config()
 
 sourcePath = os.path.dirname(os.path.abspath(__file__))
-imageBasePath = os.path.join(sourcePath, "Predictions")
+imageBasePath = "C:/Users/fabiantrottmann/OneDrive/_Predictions"
 imageFiles = [os.path.join(imageBasePath, fileName) for fileName in os.listdir(imageBasePath) if fileName.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
 
 lastImage = None
