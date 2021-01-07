@@ -9,4 +9,5 @@ test:
 pip show mask-rcnn
 
 run program
+cd C:\Projects\Python\DeepLearningInVision\mask_detection\sources\venv\Scripts
 .\python.exe C:\Projects\Python\DeepLearningInVision\mask_detection\sources\OxygenMaskPredictor.py
