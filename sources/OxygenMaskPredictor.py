@@ -6,7 +6,6 @@ import skimage.io
 from mrcnn.config import Config
 from mrcnn.model import MaskRCNN
 import mrcnn.model as modellib
-import time
 
 class PredictionConfig(Config):
     NAME = "oxygenmask_cfg"
