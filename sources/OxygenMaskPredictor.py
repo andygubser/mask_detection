@@ -39,6 +39,7 @@ def create_plot_prediction(absolutePathImage, model, cfg):
         width, height = x2 - x1, y2 - y1
         predClassId = int(y_predict['class_ids'][i])
         className = classNameById[predClassId]
+        plt.text(x1, y1, className, fontsize=10, color="white", bbox=dict(facecolor='red', alpha=0.2))
         print("className: {0}".format(className))
         rect = Rectangle((x1, y1), width, height, fill=False, color='red')
         ax.add_patch(rect) # draw box
@@ -69,7 +70,7 @@ def get_lastImage(imageBasePath):
 model,config = init_model_config()
 
 sourcePath = os.path.dirname(os.path.abspath(__file__))
-imageBasePath = "C:/Users/fabiantrottmann/OneDrive/_Predictions"
+imageBasePath = "C:/Users/fabiantrottmann/Dropbox/_Predictions"
 imageFiles = [os.path.join(imageBasePath, fileName) for fileName in os.listdir(imageBasePath) if fileName.lower().endswith(('.png', '.jpg', '.jpeg', '.bmp'))]
 
 lastImage = None
@@ -81,5 +82,7 @@ while True:
         if plt != None:
             plt.close()
         plt = create_plot_prediction(currentImage, model, config)
+        plt.get_current_fig_manager().window.state('zoomed')
         plt.pause(2)
+        plt.draw()
         plt.show(block=False)
