@@ -38,10 +38,18 @@ def create_plot_prediction(absolutePathImage, model, cfg):
         width, height = x2 - x1, y2 - y1
         predClassId = int(y_predict['class_ids'][i])
         className = classNameById[predClassId]
-        plt.text(x1, y1, className, fontsize=10, color="white", bbox=dict(facecolor='red', alpha=0.2))
-        print("className: {0}".format(className))
-        rect = Rectangle((x1, y1), width, height, fill=False, color='red')
-        ax.add_patch(rect) # draw box
+        precision = y_predict['scores'][i]
+        precision = "{:.2f}".format(round(precision, 2))
+        label = "{0} - {1}".format(className, precision)
+        print("className: {0}".format(label))
+
+        facecolor = 'green'
+        if predClassId == 2:
+            facecolor = 'orange'
+
+        plt.text(x1, y1, label, fontsize=10, color="black", bbox=dict(facecolor=facecolor, alpha=0.2))
+        rect = Rectangle((x1, y1), width, height, fill=False, color=facecolor)
+        ax.add_patch(rect)
     return plt
 
 def init_model_config():
@@ -50,6 +58,7 @@ def init_model_config():
     sourcePath = os.path.dirname(os.path.abspath(__file__))
     model = MaskRCNN(mode='inference', model_dir=sourcePath, config=config)
     modelAbsolutePath = os.path.join(sourcePath, "mask_rcnn_oxygenmask_cfg_0005.h5")
+    print(modelAbsolutePath)
     model.load_weights(modelAbsolutePath, by_name=True)
     return model, config
 
