@@ -9,7 +9,7 @@ import mrcnn.model as modellib
 
 class PredictionConfig(Config):
     NAME = "oxygenmask_cfg"
-    NUM_CLASSES = 4 #background + masks and nomasks and wearing incorrect
+    NUM_CLASSES = 4 #background + masks and nomasks
     GPU_COUNT = 1
     IMAGES_PER_GPU = 1
 
@@ -57,7 +57,7 @@ def init_model_config():
     config = PredictionConfig()
     sourcePath = os.path.dirname(os.path.abspath(__file__))
     model = MaskRCNN(mode='inference', model_dir=sourcePath, config=config)
-    modelAbsolutePath = os.path.join(sourcePath, "mask_rcnn_oxygenmask_cfg_0005.h5")
+    modelAbsolutePath = os.path.join(sourcePath, "model.h5")
     print(modelAbsolutePath)
     model.load_weights(modelAbsolutePath, by_name=True)
     return model, config
